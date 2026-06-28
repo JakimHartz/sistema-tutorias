@@ -104,6 +104,59 @@ elseif ($action === 'carga_masiva' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         http_response_code(400);
         echo json_encode(["status" => "error", "message" => "No se recibió un archivo válido."]);
     }
+} 
+
+// ========================================================
+// REQUERIMIENTO: LISTAR PROFESORES DISPONIBLES
+// ========================================================
+elseif ($action === 'listar_profesores' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    $query = "SELECT id, num_empleado, nombre FROM usuarios WHERE rol = 'profesor'";
+    $stmt = $db->prepare($query);
+    $stmt->execute();
+    echo json_encode($stmt->fetchAll());
+    exit();
+}
+
+// ========================================================
+// REQUERIMIENTO: DASHBOARD COMPLETO (PROFESORES CON SUS ALUMNOS)
+// ========================================================
+elseif ($action === 'dashboard_admin' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Traer todos los profesores
+    $queryProf = "SELECT id, num_empleado, nombre FROM usuarios WHERE rol = 'profesor'";
+    $stmtProf = $db->prepare($queryProf);
+    $stmtProf->execute();
+    $profesores = $stmtProf->fetchAll();
+
+    $dashboard = [];
+
+    foreach ($profesores as $prof) {
+        // Buscar alumnos asignados a este profesor
+        $queryAl = "SELECT id, matricula, nombre FROM alumnos WHERE profesor_id = :profesor_id";
+        $stmtAl = $db->prepare($queryAl);
+        $stmtAl->bindParam(":profesor_id", $prof['id']);
+        $stmtAl->execute();
+        $alumnos = $stmtAl->fetchAll();
+
+        $dashboard[] = [
+            "id" => $prof['id'],
+            "num_empleado" => $prof['num_empleado'],
+            "nombre" => $prof['nombre'],
+            "alumnos" => $alumnos,
+            "total_alumnos" => count($alumnos)
+        ];
+    }
+
+    // Alumnos sin profesor asignado actualmente
+    $querySinProf = "SELECT id, matricula, nombre FROM alumnos WHERE profesor_id IS NULL";
+    $stmtSin = $db->prepare($querySinProf);
+    $stmtSin->execute();
+    $sinProfesor = $stmtSin->fetchAll();
+
+    echo json_encode([
+        "profesores_asignaciones" => $dashboard,
+        "alumnos_sin_profesor" => $sinProfesor
+    ]);
+    exit();
 } else {
     http_response_code(404);
     echo json_encode(["status" => "error", "message" => "Acción no encontrada."]);

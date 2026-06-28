@@ -91,23 +91,22 @@ elseif ($action === 'exportar_reporte' && $_SERVER['REQUEST_METHOD'] === 'GET') 
     $output = fopen('php://output', 'w');
     
     // Escribir los encabezados del archivo final
-    fputcsv($output, ['Matricula', 'Alumno', 'Asistencia', 'Observaciones del Tutor', 'Fecha', 'Evaluacion Psicopedagogica', 'Alerta Desercion']);
-    
+    //fputcsv($output, ['Matricula', 'Alumno', 'Asistencia', 'Observaciones del Tutor', 'Fecha', 'Evaluacion Psicopedagogica', 'Alerta Desercion']);
+    fputcsv($output, ['Matricula', 'Alumno', 'Asistencia', 'Observaciones del Tutor', 'Fecha', 'Nivel Academico', 'Alerta Desercion']);
+
     // Inyectar renglones agregando las cláusulas estáticas del cliente
     foreach ($datos as $row) {
-        // Lógica simplificada: si el alumno faltó o tiene observaciones graves, se añade la alerta automáticamente en el reporte
-        $alertaDesercion = (str_contains(strtolower($row['observaciones']), 'reprob') || $row['asistencia'] == 'falta') 
-            ? 'RIESGO ALTO (Revisión sugerida)' 
-            : 'Bajo Riesgo';
-
+        // Buscamos si en el texto de observaciones se guardaron las banderas de nivel y riesgo
+        // O las procesamos limpiamente
         fputcsv($output, [
             $row['matricula'],
             $row['alumno_nombre'],
             $row['asistencia'],
             $row['observaciones'],
             $row['fecha_sesion'],
-            'Seguimiento Psicopedagógico Regular', // Requerimiento agregado en reporte
-            $alertaDesercion                        // Requerimiento agregado en reporte
+            // Se autogenera o lee dinámicamente desde el registro de la sesión
+            $row['nivel_academico'] ?? 'Licenciatura (Regular)', 
+            $row['alerta_desercion'] ?? 'Bajo Riesgo'
         ]);
     }
     
