@@ -157,6 +157,35 @@ elseif ($action === 'dashboard_admin' && $_SERVER['REQUEST_METHOD'] === 'GET') {
         "alumnos_sin_profesor" => $sinProfesor
     ]);
     exit();
+} 
+
+// Asignar tutor después de la carga a través de archivo CSV
+elseif ($action === 'asignar_tutor' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = json_decode(file_get_contents("php://input"));
+
+    if (!empty($data->alumno_id)) {
+        $query = "UPDATE alumnos SET profesor_id = :profesor_id WHERE id = :alumno_id";
+        $stmt = $db->prepare($query);
+        
+        if ($data->profesor_id === null || $data->profesor_id === "null" || $data->profesor_id === "") {
+            $stmt->bindValue(":profesor_id", null, PDO::PARAM_NULL);
+        } else {
+            $stmt->bindValue(":profesor_id", intval($data->profesor_id), PDO::PARAM_INT);
+        }
+        
+        $stmt->bindValue(":alumno_id", intval($data->alumno_id), PDO::PARAM_INT);
+
+        if ($stmt->execute()) {
+            echo json_encode(["status" => "success", "message" => "Tutor asignado correctamente."]);
+        } else {
+            http_response_code(500);
+            echo json_encode(["status" => "error", "message" => "Error al actualizar en la base de datos."]);
+        }
+    } else {
+        http_response_code(400);
+        echo json_encode(["status" => "error", "message" => "Datos incompletos."]);
+    }
+    exit();
 } else {
     http_response_code(404);
     echo json_encode(["status" => "error", "message" => "Acción no encontrada."]);

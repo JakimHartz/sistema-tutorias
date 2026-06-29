@@ -3,12 +3,12 @@
   <header class="navbar-header">
     <nav class="container">
       <ul>
-        <li><strong class="brand-title">🎓 Sistema de Control de Tutorías</strong></li>
+        <li><strong class="brand-title">TutorTrack • Sistema de Control de Tutorías</strong></li>
       </ul>
       <ul v-if="usuarioLogueado">
         <li>
           <span class="user-badge">
-            ⚡ {{ usuarioLogueado.nombre }} <strong>({{ usuarioLogueado.rol.toUpperCase() }})</strong>
+            {{ usuarioLogueado.nombre }} <strong>({{ usuarioLogueado.rol.toUpperCase() }})</strong>
           </span>
         </li>
         <li><button class="outline contrast btn-sm" @click="cerrarSesion">Cerrar Sesión</button></li>
@@ -21,19 +21,19 @@
     <!-- 1. PANTALLA DE LOGIN -->
     <div v-if="!usuarioLogueado" class="login-wrapper">
       <article class="login-card">
-        <h3 class="txt-center">🔐 Iniciar Sesión</h3>
+        <h3 class="txt-center">Iniciar Sesión</h3>
         <p v-if="mensajeError" class="error-banner">{{ mensajeError }}</p>
         
         <form @submit.prevent="ejecutarLogin">
           <label for="num_empleado">Usuario / Número de Empleado
-            <input type="text" id="num_empleado" v-model="loginData.num_empleado" placeholder="Ej: ADMIN01 o EMP-883" required>
+            <input type="text" id="num_empleado" v-model="loginData.num_empleado" placeholder="Ej: admin01 o 202306li" required>
           </label>
 
           <label for="password">Contraseña
             <input type="password" id="password" v-model="loginData.password" placeholder="••••••••" required>
           </label>
 
-          <button type="submit" class="primary w-100">Ingresar al Sistema</button>
+          <button type="submit" class="primary w-100"><strong>Ingresar al Sistema</strong></button>
         </form>
       </article>
     </div>
@@ -73,8 +73,8 @@
         
         <!-- A. DASHBOARD ADMIN -->
         <div v-if="usuarioLogueado.rol === 'admin' && menuActivo === 'dash'">
-          <h2>📊 Dashboard General de Asignaciones</h2>
-          <p class="txt-muted">Visualiza en tiempo real qué profesor tiene a cargo a cada estudiante.</p>
+          <h2>📊 Dashboard general de asignaciones</h2>
+          <p class="txt-muted">Visualiza qué profesor tiene a cargo a cada estudiante.</p>
           
           <div class="grid">
             <div v-for="prof in adminDashboardData.profesores_asignaciones" :key="prof.id">
@@ -141,6 +141,38 @@
               </blockquote>
             </article>
           </div>
+
+          <article class="download-section" style="margin-top: 2rem;">
+            <h3>🔗 Asignación y Control de Tutores</h3>
+            <p class="txt-muted">Aquí aparecen los alumnos recién cargados desde el CSV o dados de alta. Selecciona un profesor de la lista desplegable para asignarlo o cambiarlo en tiempo real.</p>
+            
+            <table class="striped">
+              <thead>
+                <tr>
+                  <th>Matrícula</th>
+                  <th>Alumno</th>
+                  <th>Tutor Asignado actualmente</th>
+                  <th>Modificar Tutor</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="al in obtenerTodosLosAlumnos()" :key="al.id">
+                  <td><code>{{ al.matricula }}</code></td>
+                  <td><strong>{{ al.nombre }}</strong></td>
+                  <td>
+                    <span v-if="al.tutor_nombre" class="badge" style="color: #90e0ef; background: #1a2333;">{{ al.tutor_nombre }}</span>
+                    <span v-else class="badge" style="color: #feb2b2; background: #4a1d1d;">⚠️ Sin Tutor</span>
+                  </td>
+                  <td>
+                    <select :value="al.profesor_id" @change="reasignarTutorDesdeTabla(al.id, $event.target.value)" style="margin: 0; padding: 0.3rem;">
+                      <option :value="null">-- Sin asignar --</option>
+                      <option v-for="p in listaProfesores" :key="p.id" :value="p.id">{{ p.nombre }}</option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </article>
         </div>
 
         <!-- C. GESTIÓN DE PROFESORES (ADMIN) -->
@@ -451,39 +483,173 @@ export default {
     limpiarAlertas() {
       this.notificacion = "";
       this.mensajeError = "";
-    }
+    },
+
+    // Une de forma virtual a los alumnos asignados y huérfanos para pintarlos en la tabla de control
+    obtenerTodosLosAlumnos() {
+      let listaCompleta = [];
+      
+      // Mapear los que ya tienen profesor
+      this.adminDashboardData.profesores_asignaciones.forEach(prof => {
+        prof.alumnos.forEach(al => {
+          listaCompleta.push({
+            id: al.id,
+            matricula: al.matricula,
+            nombre: al.nombre,
+            profesor_id: prof.id,
+            tutor_nombre: prof.nombre
+          });
+        });
+      });
+
+      // Mapear los huérfanos del CSV
+      if (this.adminDashboardData.alumnos_sin_profesor) {
+        this.adminDashboardData.alumnos_sin_profesor.forEach(al => {
+          listaCompleta.push({
+            id: al.id,
+            matricula: al.matricula,
+            nombre: al.nombre,
+            profesor_id: null,
+            tutor_nombre: null
+          });
+        });
+      }
+
+      return listaCompleta;
+    },
+
+    // Dispara la petición POST al backend para cambiar el profesor al vuelo
+    async reasignarTutorDesdeTabla(alumnoId, nuevoProfesorId) {
+      this.limpiarAlertas();
+      
+      // Si el valor es una cadena vacía o "null", lo mandamos como un null real de JavaScript
+      const profesorPayload = (nuevoProfesorId === "null" || nuevoProfesorId === "") ? null : parseInt(nuevoProfesorId);
+
+      try {
+        const resp = await fetch(`${this.API_BASE}/AlumnoController.php?action=asignar_tutor`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            alumno_id: alumnoId,
+            profesor_id: profesorPayload
+          })
+        });
+        const res = await resp.json();
+        if (resp.ok) {
+          this.notificacion = "Relación Tutor-Alumno actualizada en la base de datos.";
+          // Refrescamos el dashboard para que los cambios se reflejen en todas las vistas de inmediato
+          this.cargarDashboardAdmin(); 
+        } else {
+          this.mensajeError = res.message;
+        }
+      } catch (e) {
+        this.mensajeError = "No se pudo actualizar la asignación.";
+      }
+    },
   }
 };
 </script>
 
 <style scoped>
-.navbar-header { background-color: #1a1e24; box-shadow: 0 2px 5px rgba(0,0,0,0.2); padding: 0.5rem 0; margin-bottom: 2rem; }
-.brand-title { color: #fff; font-size: 1.2rem; }
-.user-badge { color: #90e0ef; font-size: 0.9rem; margin-right: 1rem; }
+/* Contenedor principal para forzar variables oscuras */
+:deep(*) {
+  --primary: #10ea93;
+  --primary-hover: #0cd182;
+  --primary-focus: rgba(16, 234, 147, 0.25);
+}
+
+/* Encabezado del Sistema */
+.navbar-header { 
+  background-color: #111418; 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3); 
+  padding: 0.75rem 0; 
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #2d3748;
+}
+.brand-title { color: #10ea93; font-size: 1.3rem; font-weight: 800; letter-spacing: 0.5px; }
+.user-badge { color: #90e0ef; font-size: 0.9rem; margin-right: 1rem; background: #1a2333; padding: 0.3rem 0.7rem; border-radius: 6px; }
 .btn-sm { padding: 0.25rem 0.7rem; font-size: 0.8rem; }
+
+/* Contenedor de Login */
 .login-wrapper { max-width: 460px; margin: 4rem auto; }
-.login-card { border-top: 4px solid #10ea93; padding: 2rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+.login-card { 
+  background-color: #1a1f26 !important; 
+  border: 1px solid #2d3748;
+  border-top: 4px solid #10ea93; 
+  padding: 2.5rem; 
+  box-shadow: 0 15px 35px rgba(0,0,0,0.4); 
+  color: #ffffff !important;
+}
+.login-card h3 { color: #ffffff; }
+
+/* Layout de Dashboard */
 .dashboard-layout { display: flex; gap: 2rem; align-items: flex-start; }
-.sidebar-menu { width: 260px; flex-shrink: 0; }
-.menu-card { padding: 1rem; background-color: #f8f9fa; border-radius: 8px; }
+.sidebar-menu { width: 270px; flex-shrink: 0; }
+
+/* Tarjetas Generales (Evita el fondo blanco por completo) */
+article {
+  background-color: #1a1f26 !important;
+  border: 1px solid #2d3748 !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+article h3, article h4, article h5 {
+  color: #ffffff !important;
+}
+
+/* Entradas de formulario, selectores y campos de texto */
+input, select, textarea {
+  background-color: #111418 !important;
+  border: 1px solid #4a5568 !important;
+  color: #ffffff !important;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #10ea93 !important;
+  box-shadow: 0 0 0 2px rgba(16, 234, 147, 0.25) !important;
+}
+
+/* Menú Lateral */
+.menu-card { padding: 1.2rem; }
+.menu-card h5 { border-bottom: 1px solid #2d3748; padding-bottom: 0.5rem; margin-bottom: 1rem; color: #a0aec0 !important; }
 .menu-links { list-style: none; padding: 0; margin: 0; }
-.menu-links li { margin-bottom: 0.5rem; }
-.menu-links a { display: block; padding: 0.5rem; border-radius: 4px; text-decoration: none; color: #495057; }
-.menu-links a:hover { background-color: #e9ecef; }
-.menu-links a.active { background-color: #10ea93; color: #1a1e24; font-weight: bold; }
+.menu-links li { margin-bottom: 0.6rem; }
+.menu-links a { display: block; padding: 0.6rem; border-radius: 6px; text-decoration: none; color: #cbd5e1; transition: all 0.2s ease; }
+.menu-links a:hover { background-color: #2d3748; color: #ffffff; }
+.menu-links a.active { background-color: #10ea93; color: #111418; font-weight: bold; }
+
+/* Contenido Principal */
 .content-viewer { flex-grow: 1; min-width: 0; }
-.error-banner { background-color: #ffdde1; color: #c01e2e; padding: 0.75rem; border-radius: 6px; margin-bottom: 1.5rem; border-left: 5px solid #c01e2e; font-size: 0.9rem; }
-.success-banner { background-color: #d4edda; color: #155724; padding: 0.75rem; border-radius: 6px; margin-bottom: 1.5rem; border-left: 5px solid #155724; font-size: 0.9rem; }
-.txt-muted { color: #6c757d; }
+
+/* Banners de Notificaciones */
+.error-banner { background-color: #4a1d24; color: #fecdd3; padding: 0.75rem; border-radius: 6px; margin-bottom: 1.5rem; border-left: 5px solid #e11d48; font-size: 0.9rem; }
+.success-banner { background-color: #143525; color: #d1fae5; padding: 0.75rem; border-radius: 6px; margin-bottom: 1.5rem; border-left: 5px solid #10b981; font-size: 0.9rem; }
+
+.txt-muted { color: #94a3b8 !important; }
 .txt-center { text-align: center; }
 .w-100 { width: 100%; }
-.micro-text { font-size: 0.75rem; color: #6c757d; }
-.dash-card { border-left: 4px solid #00b4d8; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-.badge { background: #e2e8f0; color: #4a5568; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.75rem; display: inline-block; margin: 0.5rem 0; }
-.mini-list { padding-left: 1.2rem; margin: 0.5rem 0 0 0; font-size: 0.85rem; }
-.warning-card { background: #fff3cd; border: 1px solid #ffeeba; padding: 1rem; border-radius: 6px; margin-top: 2rem; }
-.grid-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
-.tag-alert { background: #fff; border: 1px solid #ffeeba; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.8rem; color: #856404; font-weight: bold; }
-.alert-box-selection { background: #fff5f5; border: 1px solid #fed7d7; padding: 1rem; border-radius: 6px; margin-bottom: 1rem; }
-.download-section { background: #edf2f7; border: 1px solid #e2e8f0; padding: 1.5rem; border-radius: 8px; margin-top: 2rem; }
+.micro-text { font-size: 0.8rem; color: #94a3b8; }
+
+/* Elementos del Dashboard */
+.dash-card { border-left: 4px solid #00b4d8 !important; background-color: #151920 !important; }
+.badge { background: #2d3748; color: #10ea93; padding: 0.3rem 0.6rem; border-radius: 12px; font-size: 0.75rem; display: inline-block; margin: 0.5rem 0; font-weight: 600; }
+.mini-list { padding-left: 1.2rem; margin: 0.5rem 0 0 0; }
+.mini-list li { color: #e2e8f0; margin-bottom: 0.25rem; }
+
+/* Alertas y Bloques de Riesgo */
+.warning-card { background: #3a2a0d !important; border: 1px solid #744210 !important; padding: 1.2rem; border-radius: 8px; margin-top: 2rem; }
+.warning-card h5 { color: #fbd38d !important; }
+.grid-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+.tag-alert { background: #2c1a04; border: 1px solid #744210; padding: 0.3rem 0.7rem; border-radius: 6px; font-size: 0.85rem; color: #fbd38d; font-weight: bold; }
+.alert-box-selection { background: #4a1d1d; border: 1px solid #9b2c2c; padding: 1.2rem; border-radius: 8px; margin-bottom: 1.5rem; }
+.alert-box-selection legend { color: #feb2b2 !important; }
+
+/* Sección de Descarga */
+.download-section { background: #151920; border: 1px solid #2d3748; padding: 1.5rem; border-radius: 8px; margin-top: 2rem; }
+
+/* Tablas Estilizadas */
+table.striped tbody tr:nth-child(odd) {
+  background-color: #151920 !important;
+}
+table th { color: #ffffff !important; border-bottom: 2px solid #2d3748; }
+table td { border-bottom: 1px solid #2d3748; vertical-align: middle; color: #f1f5f9; }
 </style>
