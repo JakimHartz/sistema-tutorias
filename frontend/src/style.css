@@ -1,79 +1,120 @@
+/* src/style.css
+   Estilos globales del sistema. Se importan en main.js
+   después de Pico.css para sobreescribir sus defaults. */
+
+/* ── Variables de color ─────────────────────────── */
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --brand:        #10ea93;
+  --brand-hover:  #0cd182;
+  --brand-focus:  rgba(16, 234, 147, 0.25);
+  --bg-base:      #0d1117;
+  --bg-card:      #1a1f26;
+  --bg-input:     #111418;
+  --border:       #2d3748;
+  --text-main:    #f1f5f9;
+  --text-muted:   #94a3b8;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
+/* Forzar tema oscuro en toda la app */
 body {
-  margin: 0;
+  background-color: var(--bg-base) !important;
+  color: var(--text-main) !important;
+}
+
+/* Pico usa --primary para colorear botones y focus rings */
+:root {
+  --primary:       var(--brand);
+  --primary-hover: var(--brand-hover);
+  --primary-focus: var(--brand-focus);
+}
+
+/* ── Tarjetas / artículos ───────────────────────── */
+article {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-main) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+article h3, article h4, article h5 { color: #fff !important; }
+
+/* ── Formularios ─────────────────────────────────── */
+input, select, textarea {
+  background-color: var(--bg-input) !important;
+  border: 1px solid #4a5568 !important;
+  color: #fff !important;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--brand) !important;
+  box-shadow: 0 0 0 2px var(--brand-focus) !important;
+}
+label { color: var(--text-main) !important; }
+small  { color: var(--text-muted); }
+
+/* ── Tablas ──────────────────────────────────────── */
+table th  { color: #fff !important; border-bottom: 2px solid var(--border); }
+table td  { border-bottom: 1px solid var(--border); vertical-align: middle; color: var(--text-main); }
+table.striped tbody tr:nth-child(odd) { background-color: #151920 !important; }
+
+/* ── Utilidades compartidas ─────────────────────── */
+.txt-muted  { color: var(--text-muted) !important; }
+.txt-center { text-align: center; }
+.w-100      { width: 100%; }
+.micro-text { font-size: 0.8rem; color: var(--text-muted); }
+.btn-sm     { padding: 0.25rem 0.7rem; font-size: 0.8rem; }
+
+.badge {
+  background: #2d3748; color: var(--brand);
+  padding: 0.3rem 0.6rem; border-radius: 12px;
+  font-size: 0.75rem; display: inline-block;
+  margin: 0.5rem 0; font-weight: 600;
+}
+
+/* Banners de notificación */
+.error-banner {
+  background-color: #4a1d24; color: #fecdd3;
+  padding: 0.75rem; border-radius: 6px;
+  margin-bottom: 1.5rem; border-left: 5px solid #e11d48;
+  font-size: 0.9rem;
+}
+.success-banner {
+  background-color: #143525; color: #d1fae5;
+  padding: 0.75rem; border-radius: 6px;
+  margin-bottom: 1.5rem; border-left: 5px solid #10b981;
+  font-size: 0.9rem;
+}
+
+/* ── Layout principal ────────────────────────────── */
+.main-content   { padding-top: 1.5rem; }
+.dashboard-layout {
   display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  gap: 2rem;
+  align-items: flex-start;
+}
+.content-viewer { flex: 1; min-width: 0; }
+
+/* ── Dashboard de admin ──────────────────────────── */
+.profesores-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+@media (max-width: 1024px) { .profesores-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px)  {
+  .profesores-grid { grid-template-columns: 1fr; }
+  .dashboard-layout { flex-direction: column; }
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
+.dash-card      { border-left: 4px solid #00b4d8 !important; background-color: #151920 !important; }
+.mini-list      { padding-left: 1.2rem; margin: 0.5rem 0 0; }
+.mini-list li   { color: #e2e8f0; margin-bottom: 0.25rem; }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
+.warning-card   { background: #3a2a0d !important; border: 1px solid #744210 !important; padding: 1.2rem; border-radius: 8px; margin-top: 2rem; }
+.warning-card h5 { color: #fbd38d !important; }
+.grid-tags      { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+.tag-alert      { background: #2c1a04; border: 1px solid #744210; padding: 0.3rem 0.7rem; border-radius: 6px; font-size: 0.85rem; color: #fbd38d; font-weight: bold; }
 
-.card {
-  padding: 2em;
-}
+.alert-box-selection { background: #4a1d1d; border: 1px solid #9b2c2c; padding: 1.2rem; border-radius: 8px; margin-bottom: 1.5rem; }
+.alert-box-selection legend { color: #feb2b2 !important; }
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
+.download-section { background: #151920; border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-top: 2rem; }
