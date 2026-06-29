@@ -12,7 +12,7 @@ CREATE DATABASE IF NOT EXISTS sistema_tutorias
 
 USE sistema_tutorias;
 
--- ── Tabla de usuarios (admin y profesores) ─────────────────
+--  Tabla de usuarios (admin y profesores) 
 CREATE TABLE IF NOT EXISTS usuarios (
     id           INT AUTO_INCREMENT PRIMARY KEY,
     num_empleado VARCHAR(20)  NOT NULL UNIQUE,
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ── Tabla de alumnos ───────────────────────────────────────
+--  Tabla de alumnos 
 CREATE TABLE IF NOT EXISTS alumnos (
     id           INT AUTO_INCREMENT PRIMARY KEY,
     matricula    CHAR(10)     NOT NULL UNIQUE,
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS alumnos (
         ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ── Tabla de sesiones de tutoría (bitácora) ────────────────
+--  Tabla de sesiones de tutoría (bitácora) 
 CREATE TABLE IF NOT EXISTS sesiones (
     id            INT AUTO_INCREMENT PRIMARY KEY,
     alumno_id     INT         NOT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS sesiones (
         FOREIGN KEY (profesor_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ── Datos iniciales de prueba ──────────────────────────────
+--  Datos iniciales de prueba 
 -- Usuario administrador por defecto (contraseña: admin123)
 INSERT IGNORE INTO usuarios (num_empleado, nombre, password, rol)
 VALUES ('admin01', 'Administrador del Sistema', 'admin123', 'admin');

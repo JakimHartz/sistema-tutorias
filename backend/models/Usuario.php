@@ -36,7 +36,6 @@ class Usuario {
 
         // Si encuentra el registro, asigna los datos al objeto
         if ($stmt->rowCount() > 0) {
-            // Quitamos PDO::ATTR_ASSOC y usamos FETCH_ASSOC directo como string o el fetch simple
             $row = $stmt->fetch(); 
             
             $this->id = $row['id'];

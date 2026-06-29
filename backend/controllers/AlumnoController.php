@@ -22,9 +22,7 @@ $alumno = new Alumno($db);
 
 $action = $_GET['action'] ?? '';
 
-// ========================================================
-// REQUERIMIENTO 1: ALTA MANUAL (JSON POST)
-// ========================================================
+// ALTA MANUAL (JSON POST)
 if ($action === 'crear_manual' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents("php://input"));
 
@@ -52,9 +50,7 @@ if ($action === 'crear_manual' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// ========================================================
-// REQUERIMIENTO 2: CARGA MASIVA MEDIANTE HOJA DE CÁLCULO (CSV)
-// ========================================================
+// CARGA MASIVA MEDIANTE HOJA DE CÁLCULO (CSV)
 elseif ($action === 'carga_masiva' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_FILES['archivo']) && $_FILES['archivo']['error'] === UPLOAD_ERR_OK) {
         $fileTmpPath = $_FILES['archivo']['tmp_name'];
@@ -64,13 +60,13 @@ elseif ($action === 'carga_masiva' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $insertados = 0;
             $duplicados = 0;
             
-            // Opcional: Si tu archivo Excel/CSV incluye títulos en la primera línea, 
-            // descomenta la siguiente línea para brincarla:
+            // Opcional: Si el archivo Excel/CSV incluye títulos en la primera línea, 
+            // descomentar la siguiente línea para brincarla:
             // fgetcsv($handle, 1000, ",");
 
             // Leer renglón por renglón el archivo separado por comas
             while (($row = fgetcsv($handle, 1000, ",")) !== FALSE) {
-                // Suponiendo que la Estructura del CSV es: Matrícula, Nombre Completo
+                // Asumiendo que la estructura del CSV es: Matrícula, Nombre Completo
                 if (count($row) >= 2) {
                     $alumno->matricula = trim($row[0]);
                     $alumno->nombre = trim($row[1]);
@@ -106,9 +102,7 @@ elseif ($action === 'carga_masiva' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 } 
 
-// ========================================================
-// REQUERIMIENTO: LISTAR PROFESORES DISPONIBLES
-// ========================================================
+// LISTAR PROFESORES DISPONIBLES
 elseif ($action === 'listar_profesores' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     $query = "SELECT id, num_empleado, nombre FROM usuarios WHERE rol = 'profesor'";
     $stmt = $db->prepare($query);
@@ -117,9 +111,7 @@ elseif ($action === 'listar_profesores' && $_SERVER['REQUEST_METHOD'] === 'GET')
     exit();
 }
 
-// ========================================================
-// REQUERIMIENTO: DASHBOARD COMPLETO (PROFESORES CON SUS ALUMNOS)
-// ========================================================
+// DASHBOARD COMPLETO (PROFESORES CON SUS ALUMNOS)
 elseif ($action === 'dashboard_admin' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     // Traer todos los profesores
     $queryProf = "SELECT id, num_empleado, nombre FROM usuarios WHERE rol = 'profesor'";

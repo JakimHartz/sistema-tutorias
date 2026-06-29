@@ -22,9 +22,7 @@ $sesion = new Sesion($db);
 
 $action = $_GET['action'] ?? '';
 
-// ========================================================
 // 1. OBTENER LISTA DE ALUMNOS ASIGNADOS A UN PROFESOR
-// ========================================================
 if ($action === 'alumnos_asignados' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     $profesor_id = $_GET['profesor_id'] ?? '';
 
@@ -43,9 +41,7 @@ if ($action === 'alumnos_asignados' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 }
 
-// ========================================================
 // 2. GUARDAR BITÁCORA DE LA SESIÓN
-// ========================================================
 elseif ($action === 'guardar_bitacora' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents("php://input"));
 
@@ -69,9 +65,7 @@ elseif ($action === 'guardar_bitacora' && $_SERVER['REQUEST_METHOD'] === 'POST')
     }
 }
 
-// ========================================================
 // 3. EXPORTAR REPORTE (AÑADIENDO PSICOPEDAGÓGICO Y DESERCIÓN)
-// ========================================================
 elseif ($action === 'exportar_reporte' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     $profesor_id = $_GET['profesor_id'] ?? '';
     
@@ -91,13 +85,12 @@ elseif ($action === 'exportar_reporte' && $_SERVER['REQUEST_METHOD'] === 'GET') 
     $output = fopen('php://output', 'w');
     
     // Escribir los encabezados del archivo final
-    //fputcsv($output, ['Matricula', 'Alumno', 'Asistencia', 'Observaciones del Tutor', 'Fecha', 'Evaluacion Psicopedagogica', 'Alerta Desercion']);
     fputcsv($output, ['Matricula', 'Alumno', 'Asistencia', 'Observaciones del Tutor', 'Fecha', 'Nivel Academico', 'Alerta Desercion']);
 
-    // Inyectar renglones agregando las cláusulas estáticas del cliente
+    // Inyectar renglones agregando cláusulas estáticas
     foreach ($datos as $row) {
-        // Buscamos si en el texto de observaciones se guardaron las banderas de nivel y riesgo
-        // O las procesamos limpiamente
+        // Se busca si en el texto de observaciones se guardaron las banderas de nivel y riesgo
+        // O se procesan limpiamente
         fputcsv($output, [
             $row['matricula'],
             $row['alumno_nombre'],

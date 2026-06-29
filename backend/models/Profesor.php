@@ -46,7 +46,7 @@ class Profesor {
 
         $stmt->bindParam(":num_empleado", $this->num_empleado);
         $stmt->bindParam(":nombre",       $this->nombre);
-        $stmt->bindParam(":password",     $this->password); // Texto plano (prototipo escolar)
+        $stmt->bindParam(":password",     $this->password);
 
         return $stmt->execute();
     }

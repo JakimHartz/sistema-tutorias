@@ -5,13 +5,13 @@
 
 ---
 
-## 🎥 Video de Demostración
+## Video de Demostración
 
-> 🔗 **[Se insertará aquí el enlace público de YouTube / Drive / Loom]**
+> **[Se insertará aquí el enlace público de YouTube / Drive / Loom]**
 
 ---
 
-## 📋 Descripción del Proyecto
+## Descripción del Proyecto
 
 TutorTrack es un sistema web que permite:
 
@@ -22,7 +22,7 @@ TutorTrack es un sistema web que permite:
 
 ---
 
-## 🛠️ Tecnologías y Versiones
+## Tecnologías y Versiones
 
 | Capa | Tecnología | Versión |
 |:---|:---|:---|
@@ -35,7 +35,7 @@ TutorTrack es un sistema web que permite:
 
 ---
 
-## 🗂️ Arquitectura del Proyecto
+## Arquitectura del Proyecto
 
 ```
 sistema-tutorias/
@@ -80,26 +80,26 @@ sistema-tutorias/
 ### Flujo de datos (Frontend → Backend)
 
 ```
-Vue.js (fetch) ──→ PHP Controller ──→ PHP Model ──→ MySQL
-                ←── JSON response ←── PDO query ←──
+Vue.js (fetch) ──> PHP Controller ──> PHP Model ──> MySQL
+                <── JSON response <── PDO query <──
 ```
 
 ---
 
-## ⚙️ Instalación y Ejecución
+## Instalación y Ejecución
 
 ### Requisitos previos
-- **XAMPP** instalado y ejecutando Apache + MySQL
-- **Node.js** v18 o superior
+- **XAMPP (8.2.12-0)** instalado y ejecutando Apache + MySQL
+- **Node.js (v18.19.1)** v18 o superior
 - La carpeta del proyecto colocada en `C:/xampp/htdocs/` (Windows) o `/opt/lampp/htdocs/` (Linux)
 
 ---
 
 ### Paso 1 — Crear la base de datos
 
-1. Abre **phpMyAdmin** en `http://localhost/phpmyadmin`
-2. Haz clic en **Importar** → selecciona el archivo `backend/schema.sql`
-3. Pulsa **Ejecutar**
+1. Abrir **phpMyAdmin** en `http://localhost/phpmyadmin`
+2. Hacer clic en **Importar** → seleccionar el archivo `backend/schema.sql`
+3. Pulsar **Ejecutar**
 
 Esto crea la base de datos `sistema_tutorias` con tablas y datos de prueba.
 
@@ -124,17 +124,17 @@ npm run dev          # Inicia en http://localhost:5173
 
 ### Paso 3 — Verificar el backend
 
-Abre en el navegador:
+Abrir en el navegador:
 
 ```
 http://localhost/sistema-tutorias/backend/controllers/AlumnoController.php?action=listar_profesores
 ```
 
-Deberías ver un JSON con los profesores registrados.
+Debería ser visible un JSON con los profesores registrados.
 
 ---
 
-## 🔌 Endpoints principales de la API
+## Endpoints principales de la API
 
 ### AuthController.php
 
@@ -163,7 +163,7 @@ Deberías ver un JSON con los profesores registrados.
 
 ---
 
-## 📄 Formato del archivo CSV para carga masiva
+## Formato del archivo CSV para carga masiva
 
 El archivo debe estar separado por comas, **sin encabezados**:
 
@@ -175,7 +175,7 @@ El archivo debe estar separado por comas, **sin encabezados**:
 
 ---
 
-## 👤 Autor
+## Autor
 
 - **Joaquín Emanuel Pinacho García**
 - **Materia:** Tecnologías Web I — UNSIS
