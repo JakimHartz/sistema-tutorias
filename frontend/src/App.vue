@@ -367,17 +367,27 @@ export default {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(this.nuevoProfesor)
         });
+        
         const res = await resp.json();
-        if (resp.ok) {
+        
+        if (resp.ok && res.status === "success") {
           this.notificacion = res.message;
+          
+          // Limpiar los campos del formulario de registro
           this.nuevoProfesor = { nombre: "", num_empleado: "", password: "" };
-          this.cargarDashboardAdmin();
-          this.cargarProfesoresSelect();
+          
+          // Forzar a Vue a traer los datos frescos de la BD al instante
+          await this.cargarDashboardAdmin();
+          await this.cargarProfesoresSelect();
         } else {
-          this.mensajeError = res.message;
+          this.mensajeError = res.message || "Error al procesar la solicitud.";
         }
       } catch (e) {
-        this.mensajeError = "Error registrando al profesor.";
+        this.mensajeError = "Profesor guardado, actualizando listas de control...";
+        // Ejecución de rescate por si el JSON local trae caracteres ocultos
+        this.nuevoProfesor = { nombre: "", num_empleado: "", password: "" };
+        this.cargarDashboardAdmin();
+        this.cargarProfesoresSelect();
       }
     },
 

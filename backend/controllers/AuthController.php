@@ -78,16 +78,18 @@ if (!empty($data->num_empleado) && !empty($data->password)) {
     echo json_encode(["status" => "error", "message" => "Datos incompletos. Ingrese usuario y contraseña."]);
 }
 
-// Agregar esto en backend/controllers/AuthController.php 
-// justo antes del final del archivo o manejando un action por GET
-
 $action = $_GET['action'] ?? '';
 
 if ($action === 'registrar_profesor' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Limpiar cualquier eco o espacio en blanco previo
+    ob_clean();
+    header('Content-Type: application/json');
+
     $data = json_decode(file_get_contents("php://input"));
     
     if (!empty($data->num_empleado) && !empty($data->nombre) && !empty($data->password)) {
-        // Verificar si ya existe
+        
+        // Verificar duplicados
         $checkQuery = "SELECT id FROM usuarios WHERE num_empleado = :num_empleado";
         $stmtCheck = $db->prepare($checkQuery);
         $stmtCheck->bindParam(":num_empleado", $data->num_empleado);
@@ -99,24 +101,25 @@ if ($action === 'registrar_profesor' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             exit();
         }
 
+        // Insertar registro
         $query = "INSERT INTO usuarios (num_empleado, nombre, password, rol) VALUES (:num_empleado, :nombre, :password, 'profesor')";
         $stmt = $db->prepare($query);
         
         $stmt->bindParam(":num_empleado", $data->num_empleado);
         $stmt->bindParam(":nombre", $data->nombre);
-        // Guardamos texto plano para mantener la simplicidad de tus pruebas locales actuales
         $stmt->bindParam(":password", $data->password); 
 
         if ($stmt->execute()) {
-            http_response_code(201);
+            // Usamos código 200 para máxima compatibilidad con fetch en entornos locales
+            http_response_code(200); 
             echo json_encode(["status" => "success", "message" => "Profesor registrado exitosamente."]);
         } else {
             http_response_code(500);
-            echo json_encode(["status" => "error", "message" => "No se pudo registrar al profesor."]);
+            echo json_encode(["status" => "error", "message" => "No se pudo registrar al profesor en la base de datos."]);
         }
     } else {
         http_response_code(400);
-        echo json_encode(["status" => "error", "message" => "Datos incompletos."]);
+        echo json_encode(["status" => "error", "message" => "Por favor, rellene todos los campos."]);
     }
     exit();
 }
