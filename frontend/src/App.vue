@@ -73,10 +73,10 @@
         
         <!-- A. DASHBOARD ADMIN -->
         <div v-if="usuarioLogueado.rol === 'admin' && menuActivo === 'dash'">
-          <h2>📊 Dashboard general de asignaciones</h2>
-          <p class="txt-muted">Visualiza qué profesor tiene a cargo a cada estudiante.</p>
+          <h2>📊 Dashboard General de Asignaciones</h2>
+          <p class="txt-muted">Visualiza en tiempo real qué profesor tiene a cargo a cada estudiante.</p>
           
-          <div class="grid">
+          <div class="profesores-grid">
             <div v-for="prof in adminDashboardData.profesores_asignaciones" :key="prof.id">
               <article class="dash-card">
                 <header>
@@ -95,7 +95,6 @@
             </div>
           </div>
 
-          <!-- Alumnos Huérfanos -->
           <article class="warning-card" v-if="adminDashboardData.alumnos_sin_profesor?.length > 0">
             <h5>⚠️ Alumnos Sin Profesor Asignado</h5>
             <div class="grid-tags">
@@ -202,8 +201,8 @@
         
         <!-- A. VER MIS ALUMNOS ASIGNADOS -->
         <div v-if="usuarioLogueado.rol === 'profesor' && menuActivo === 'mis_alumnos'">
-          <h2>👥 Mis Alumnos Asignados</h2>
-          <p class="txt-muted">Lista oficial de estudiantes bajo tu tutoría académica este periodo.</p>
+          <h2>Mis alumnos asignados</h2>
+          <p class="txt-muted">Lista oficial de estudiantes bajo su tutoría académica este periodo.</p>
           <article>
             <table class="striped">
               <thead>
@@ -233,10 +232,10 @@
 
         <!-- B. FORMULARIO DE TUTORÍAS AVANZADO -->
         <div v-if="usuarioLogueado.rol === 'profesor' && menuActivo === 'tutorias'">
-          <h2>📝 Registro de Sesión de Tutoría</h2>
+          <h2>Registro de sesión de tutoría</h2>
           <div v-if="alumnoSeleccionado">
             <article>
-              <header>Estudiante en Atención: <strong>{{ alumnoSeleccionado.nombre }}</strong> (Matrícula: {{ alumnoSeleccionado.matricula }})</header>
+              <header>Estudiante en atención: <strong>{{ alumnoSeleccionado.nombre }}</strong> (Matrícula: {{ alumnoSeleccionado.matricula }})</header>
               
               <form @submit.prevent="guardarBitacoraAvanzada">
                 <div class="grid">
@@ -249,22 +248,22 @@
 
                   <!-- Control de Nivel Académico -->
                   <fieldset>
-                    <legend><strong>Nivel Académico del Alumno:</strong></legend>
+                    <legend><strong>Nivel académico del alumno:</strong></legend>
                     <label><input type="radio" v-model="nuevaSesion.nivel" value="Excelente/Regular"> Excelente / Regular</label>
-                    <label><input type="radio" v-model="nuevaSesion.nivel" value="Asesorias Requeridas"> Requiere Regularización</label>
-                    <label><input type="radio" v-model="nuevaSesion.nivel" value="Condicional"> Estatus Crítico / Condicional</label>
+                    <label><input type="radio" v-model="nuevaSesion.nivel" value="Asesorias Requeridas"> Requiere regularización</label>
+                    <label><input type="radio" v-model="nuevaSesion.nivel" value="Condicional"> Estatus crítico / Condicional</label>
                   </fieldset>
                 </div>
 
                 <!-- Control de Deserción -->
                 <fieldset class="alert-box-selection">
-                  <legend><strong>🚨 ¿Detectas riesgo inminente de deserción escolar?</strong></legend>
+                  <legend><strong>🚨 ¿Detecta riesgo inminente de deserción escolar?</strong></legend>
                   <label><input type="radio" v-model="nuevaSesion.desercion" value="Bajo Riesgo"> No, se mantiene estable</label>
-                  <label><input type="radio" v-model="nuevaSesion.desercion" value="RIESGO MODERADO"> Riesgo Moderado (Problemas externos)</label>
-                  <label><input type="radio" v-model="nuevaSesion.desercion" value="RIESGO ALTO (Critico)"> Riesgo Alto / Alerta de Abandono</label>
+                  <label><input type="radio" v-model="nuevaSesion.desercion" value="RIESGO MODERADO"> Riesgo moderado (Problemas externos)</label>
+                  <label><input type="radio" v-model="nuevaSesion.desercion" value="RIESGO ALTO (Critico)"> Riesgo alto / Alerta de abandono</label>
                 </fieldset>
 
-                <label>Observaciones de la Sesión y Compromisos
+                <label>Observaciones de la sesión y compromisos
                   <textarea v-model="nuevaSesion.observaciones" rows="4" placeholder="Escribe el reporte detallado aquí..." required></textarea>
                 </label>
 
@@ -274,15 +273,15 @@
           </div>
           <div v-else>
             <article class="txt-center">
-              <p class="txt-muted">Por favor, ve al menú "Alumnos Asignados" y selecciona un estudiante para abrir la bitácora.</p>
+              <p class="txt-muted">Por favor, vaya al menú "Alumnos Asignados" y seleccione un estudiante para abrir la bitácora.</p>
             </article>
           </div>
 
           <!-- Reportes del Profesor -->
           <article class="download-section">
-            <h4>📥 Descarga de Reportes Generados</h4>
-            <p>Genera instantáneamente tu archivo Excel/CSV combinando el Historial, el Diagnóstico Psicopedagógico y las Alertas de Deserción Escolar.</p>
-            <button class="contrast" @click="descargarReporte">Descargar Reporte General (.CSV)</button>
+            <h4>📥 Descarga de reportes generados</h4>
+            <p>Genera un archivo Excel/CSV combinando el Historial, el Diagnóstico Psicopedagógico y las Alertas de Deserción Escolar.</p>
+            <button class="contrast" @click="descargarReporte">Descargar reporte general (.CSV)</button>
           </article>
         </div>
 
@@ -644,6 +643,28 @@ input:focus, select:focus, textarea:focus {
 .badge { background: #2d3748; color: #10ea93; padding: 0.3rem 0.6rem; border-radius: 12px; font-size: 0.75rem; display: inline-block; margin: 0.5rem 0; font-weight: 600; }
 .mini-list { padding-left: 1.2rem; margin: 0.5rem 0 0 0; }
 .mini-list li { color: #e2e8f0; margin-bottom: 0.25rem; }
+
+/* Cuadrícula inteligente para los profesores */
+.profesores-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* Máximo 3 por fila en pantallas grandes */
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+/* Responsividad: Pantallas Medianas (Laptops pequeñas / Tablets) */
+@media (max-width: 1024px) {
+  .profesores-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* Máximo 2 por fila */
+  }
+}
+
+/* Responsividad: Pantallas Chicas (Móviles) */
+@media (max-width: 768px) {
+  .profesores-grid {
+    grid-template-columns: 1fr; /* 1 por fila, uno abajo del otro */
+  }
+}
 
 /* Alertas y Bloques de Riesgo */
 .warning-card { background: #3a2a0d !important; border: 1px solid #744210 !important; padding: 1.2rem; border-radius: 8px; margin-top: 2rem; }
