@@ -7,7 +7,7 @@
 
 ## Video de Demostración
 
-> **[Se insertará aquí el enlace público de YouTube / Drive / Loom]**
+> **Enlace al video en YouTube:** https://youtu.be/CHADAR7_mMo
 
 ---
 
