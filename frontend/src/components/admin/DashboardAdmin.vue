@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2>📊 Dashboard General de Asignaciones</h2>
-    <p class="txt-muted">Visualiza en tiempo real qué profesor tiene a cargo a cada estudiante.</p>
+    <p class="txt-muted">Visualiza qué profesor tiene a cargo a cada estudiante.</p>
 
     <!-- Cuadrícula de profesores -->
     <div class="profesores-grid">
